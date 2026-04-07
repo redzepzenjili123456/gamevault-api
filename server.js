@@ -3,7 +3,17 @@ const nodemailer = require("nodemailer");
 const cors = require("cors");
 
 const app = express();
-app.use(cors());
+
+// ============ ПОПРАВЕН CORS ============
+app.use(cors({
+    origin: '*',  // Дозволи сите адреси
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Ова е важно за прелетање (preflight)
+app.options('*', cors());
+
 app.use(express.json());
 
 const codes = {};
@@ -12,7 +22,7 @@ const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
         user: "gamingskud01@gmail.com",
-        pass: "kcnczcnrlskjfbwl"
+        pass: "kcnczcnrlskjfbwl"  // Ако не работи, замени со App Password
     }
 });
 
@@ -23,11 +33,13 @@ app.get("/", (req, res) => {
 app.post("/send-code", async (req, res) => {
     const { email, username } = req.body;
     
+    console.log("📨 Примен барање за:", email, username);
+    
     if (!email || !username) {
         return res.json({ success: false, message: "Е-пошта и име се потребни" });
     }
     
-    const code = Math.floor(1000 + Math.random()  * 9000);
+    const code = Math.floor(1000 + Math.random() * 9000);
     
     codes[email] = {
         code: code,
@@ -56,14 +68,19 @@ app.post("/send-code", async (req, res) => {
             subject: "🎮 GameVault - Вашиот код",
             html: html
         });
+        
+        console.log("✅ Е-пошта испратена на:", email);
         res.json({ success: true, message: "Кодот е испратен!" });
     } catch (error) {
-        res.json({ success: false, message: "Грешка при испраќање" });
+        console.error("❌ Грешка:", error);
+        res.json({ success: false, message: "Грешка при испраќање на е-пошта" });
     }
 });
 
 app.post("/verify-code", (req, res) => {
     const { email, code } = req.body;
+    
+    console.log("🔍 Проверка на код за:", email);
     
     if (!codes[email]) {
         return res.json({ success: false, message: "Нема активен код" });
@@ -79,8 +96,10 @@ app.post("/verify-code", (req, res) => {
     if (parseInt(code) === data.code) {
         const username = data.username;
         delete codes[email];
+        console.log("✅ Успешно најавен:", username);
         res.json({ success: true, username: username });
     } else {
+        console.log("❌ Погрешен код:", code);
         res.json({ success: false, message: "Погрешен код" });
     }
 });
