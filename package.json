@@ -1,6 +1,7 @@
 {
   "name": "gamevault",
   "version": "1.0.0",
+  "description": "GameVault Server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
