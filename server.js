@@ -19,8 +19,8 @@ const codes = {};
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user: "gamingskud01@gmail.com",
-        pass: "kcnczcnrlskjfbwl"  // Замени со App Password ако не работи
+        user: "redzepzenjili26@gmail.com",
+        pass: "zmnswtajruukohxd"  // Замени со App Password ако не работи
     }
 });
 
